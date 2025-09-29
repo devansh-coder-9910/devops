@@ -22,7 +22,7 @@ jobs:
         run: |
           echo "Completed deploy-migration-util"
   find_duplicate:
-    name: run find_duplicate util
+    name: find_duplicate util
     runs-on: ubuntu-latest
     steps:
       - name: Echo to check
