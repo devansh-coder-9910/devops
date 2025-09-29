@@ -1,0 +1,137 @@
+name: Data migration workflow
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        type: choice
+        description: Choose script
+        required: true
+        options:
+          - remove-duplicate
+          - prevalidation
+          - data-migration
+          - data-reconcilation
+          - all
+        default: all
+jobs:
+  deploy-migration-util:
+    name: Deploy migration util
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo to check
+        run: |
+          echo "Completed deploy-migration-util"
+  find_duplicate:
+    name: run find_duplicate util
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo to check
+        run: |
+          echo "Completed run find duplicate"
+  approval-remove-duplicate:
+    name: Approval for Remove Duplicate
+    needs: [deploy-migration-util, find_duplicate ]
+    if: ${{ inputs.type == 'remove-duplicate' || inputs.type == 'all' }}
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Wait for approval
+        run: echo "Waiting for approval for remove duplicates"
+  remove_duplicate:
+    name: Remove Duplicate
+    needs: [ deploy-migration-util, approval-remove-duplicate ]
+    if: ${{ needs.approval-removal-duplicate.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo to check
+        run: |
+          echo "Completed removal of duplicate"
+  approval-prevalidation:
+    name: Approval for pre migration
+    needs: [deploy-migration-util, remove_duplicate ]
+    if: always()
+      && (needs.remove_duplicate.result == 'success' || needs.remove_duplicate.result == 'skipped')
+      && (inputs.type == 'prevalidation' || inputs.type == 'all')
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Wait for approval
+        run: echo "Waiting for approval for prevalidation"
+  populating_db_credentials:
+    name: Populating DB Credentials
+    needs: [ deploy-migration-util]
+    if: always()
+      &&  (inputs.type == 'prevalidation' || inputs.type == 'data-migration' || inputs.type == 'data=reconcilation')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo to check
+        run: |
+          echo "Completed`populating db credentials"
+  prevalidation:
+    name: Prevalidation before migration
+    needs: [ deploy-migration-util, approval-prevalidation, populating_db_credentials ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo to check
+        run: |
+          echo "Completed prevalidation of data"
+  approval-data-migration:
+    name: Approval for data migration
+    needs: [deploy-migration-util, prevalidation ]
+    if: always()
+      && (inputs.type == 'data-migration' || inputs.type == 'all' )
+      && (needs.prevalidation.result == 'success' || needs.prevalidation.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Wait for approval
+        run: echo "Waiting for approval for data migration"
+  data-migration:
+    name: Data migration
+    needs: [ deploy-migration-util, populating_db_credentials, approval-data-migration ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo to check
+        run: |
+          echo "Completed migration of data"
+  approval-data-reconcilation:
+    name: Approval for data reconcilation
+    needs: [deploy-migration-util, populating_db_credentials, data-migration ]
+    if: always()
+      && (inputs.type == 'data-reconcilation' || inputs.type == 'all' )
+      && (needs.data-migration.result == 'success' || needs.data-migration.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Wait for approval
+        run: echo "Waiting for approval for remove duplicates"    
+  data-reconcilation:
+    name: Data Reconcilation
+    needs: [ deploy-migration-util, populating_db_credentials, approval-data-reconcilation ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo to check
+        run: |
+          echo "Completed data-reconcilation"
+  cleanup:
+    name: Cleanup of resources
+    needs: [ deploy-migration-util, find_duplicate, remove_duplicate, prevalidation, data-migration, data-reconcilation]
+    if: always()
+      && (needs.find_duplicate.result == 'success' || needs.find_duplicate.result == 'skipped')
+      && (needs.remove_duplicate.result == 'success' || needs.remove_duplicates.result == 'skipped')
+      && (needs.prevalidation.result == 'success' || needs.prevalidation.result == 'skipped')
+      && (needs.data-migration.result == 'success' || needs.data-migration.result == 'skipped')
+      && (needs.data-reconcilation.result == 'success' || needs.data-reconcilation.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+       - name: Echo to check
+         run: |
+          echo "Completed cleanup"
+    
+  
+    
+          
+      
