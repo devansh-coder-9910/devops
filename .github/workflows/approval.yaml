@@ -131,7 +131,7 @@ jobs:
     needs: [ deploy-migration-util, find_duplicate, remove_duplicate, prevalidation, data-migration, data-reconcilation]
     if: always()
       && (needs.find_duplicate.result == 'success' || needs.find_duplicate.result == 'skipped')
-      && (needs.remove_duplicate.result == 'success' || needs.remove_duplicates.result == 'skipped')
+      && (needs.remove_duplicate.result == 'success' || needs.remove_duplicate.result == 'skipped')
       && (needs.prevalidation.result == 'success' || needs.prevalidation.result == 'skipped')
       && (needs.data-migration.result == 'success' || needs.data-migration.result == 'skipped')
       && (needs.data-reconcilation.result == 'success' || needs.data-reconcilation.result == 'skipped')
