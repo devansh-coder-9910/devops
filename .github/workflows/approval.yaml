@@ -63,7 +63,7 @@ jobs:
     name: Populating DB Credentials
     needs: [ deploy-migration-util]
     if: always()
-      &&  (inputs.type == 'prevalidation' || inputs.type == 'data-migration' || inputs.type == 'data=reconcilation')
+      &&  (inputs.type == 'prevalidation' || inputs.type == 'data-migration' || inputs.type == 'data-reconcilation' || inputs.type == 'all' )
     runs-on: ubuntu-latest
     steps:
       - name: Echo to check
