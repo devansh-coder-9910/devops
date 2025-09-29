@@ -23,6 +23,7 @@ jobs:
           echo "Completed deploy-migration-util"
   find_duplicate:
     name: find_duplicate util
+    needs: [ deploy-migration-util ]
     runs-on: ubuntu-latest
     steps:
       - name: Echo to check
@@ -50,6 +51,7 @@ jobs:
     name: Approval for pre migration
     needs: [deploy-migration-util, remove_duplicate ]
     if: always()
+      && (needs.deploy-migration-util.result == 'success')
       && (needs.remove_duplicate.result == 'success' || needs.remove_duplicate.result == 'skipped')
       && (inputs.type == 'prevalidation' || inputs.type == 'all')
     runs-on: ubuntu-latest
@@ -71,6 +73,8 @@ jobs:
     name: Prevalidation before migration
     needs: [ deploy-migration-util, approval-prevalidation, populating_db_credentials ]
     if: always()
+      && (needs.populating_db_credentials.result == 'success')
+      && (needs.approval-prevalidation.result == 'success')
     runs-on: ubuntu-latest
     steps:
       - name: Echo to check
@@ -81,6 +85,7 @@ jobs:
     needs: [deploy-migration-util, prevalidation ]
     if: always()
       && (inputs.type == 'data-migration' || inputs.type == 'all' )
+      && (needs.populating_db_credentials.result == 'success')
       && (needs.prevalidation.result == 'success' || needs.prevalidation.result == 'skipped')
     runs-on: ubuntu-latest
     environment: dev
@@ -91,6 +96,8 @@ jobs:
     name: Data migration
     needs: [ deploy-migration-util, populating_db_credentials, approval-data-migration ]
     if: always()
+      && (needs.approval-data-migration.result == 'success')
+      && (needs.populating_db_credentials.result == 'success')
     runs-on: ubuntu-latest
     steps:
       - name: Echo to check
@@ -101,6 +108,7 @@ jobs:
     needs: [deploy-migration-util, populating_db_credentials, data-migration ]
     if: always()
       && (inputs.type == 'data-reconcilation' || inputs.type == 'all' )
+      && (needs.populating_db_credentials.result == 'success')
       && (needs.data-migration.result == 'success' || needs.data-migration.result == 'skipped')
     runs-on: ubuntu-latest
     environment: dev
@@ -111,6 +119,8 @@ jobs:
     name: Data Reconcilation
     needs: [ deploy-migration-util, populating_db_credentials, approval-data-reconcilation ]
     if: always()
+      && (needs.approval-data-reconcilation.result == 'success')
+      && (needs.populating_db_credentials.result == 'success' )
     runs-on: ubuntu-latest
     steps:
       - name: Echo to check
