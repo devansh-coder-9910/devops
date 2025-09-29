@@ -68,7 +68,7 @@ jobs:
     steps:
       - name: Echo to check
         run: |
-          echo "Completed`populating db credentials"
+          echo "Completed populating db credentials"
   prevalidation:
     name: Prevalidation before migration
     needs: [ deploy-migration-util, approval-prevalidation, populating_db_credentials ]
