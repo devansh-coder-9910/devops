@@ -41,7 +41,7 @@ jobs:
   remove_duplicate:
     name: Remove Duplicate
     needs: [ deploy-migration-util, approval-remove-duplicate ]
-    if: ${{ needs.approval-removal-duplicate.result == 'success' }}
+    if: ${{ needs.approval-remove-duplicate.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Echo to check
